@@ -1,4 +1,4 @@
-title: Babel及其插件开发
+title: Babel介绍
 speaker: 王宇
 plugins:
     - echarts
@@ -40,9 +40,6 @@ Babel 的作者是 FaceBook 的工程师 Sebastian McKenzie。他在 2014 年发
 ## 使用babel构建基于ES6的node项目
 
 - 安装依赖包
-```
-npm install --save-dev @babel/core @babel/cli @babel/preset-env
-```
 
 - 增加 Babel 配置文件
 
@@ -65,21 +62,60 @@ npm install --save-dev @babel/core @babel/cli @babel/preset-env
 - Generator 生成新文件
 
 <slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
-<img src="/img/babel-principle.jpg">
+<div><img src="/img/babel-principle.jpg"></div>
 Babel 使用是 acorn 这个引擎来做解析，这个库会先将源码转化为抽象语法树 (AST)，再对 AST 作转换，最后将转化后的 AST 输出，便得到了被 Babel 编译后的文件。
 Babel 为每一个新的语法提供了一个插件，在 Babel 的配置中配置了哪些插件，就会把插件对应的语法给转化掉。插件被命名为 @babel/plugin-xxx 的格式。
 
 
 <slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
-
 ## Babel 组成
-<slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
 <img src="/img/babel-composition.jpg">
 
 <slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
+### @babel/preset-env
+面提到过 @babel/preset-* 其实是转换插件的集合，最常用的就是 @babel/preset-env，它包含了 大部分 ES6 的语法，具体包括哪些插件，可以在 Babel 的日志中看到。
+@babel/preset-env 中还有一个非常重要的参数 targets，最早的时候我们就提过，Babel 转译是按需的，对于环境支持的语法可以不做转换的。就是通过配置 targets 属性，让 Babel 知道目标环境，从而只转译环境不支持的语法。如果没有配置会默认转译所有 ES6 的语法
+```
+const presets = [
+  [
+    '@babel/env',
+    {
+      targets: '58',
+      debug: true
+    }
+  ]
+]
+```
 
+<slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
+### core-js (原@babel/polyfill)
+<div><img src="/img/syntax-build-in.jpg" style="width: 600px;"></div>
+ Babel 把 ES6 的标准分为 syntax 和 built-in 两种类型。syntax 就是语法，像 const、=> 这些默认被 Babel 转译的就是 syntax 的类型。而对于那些可以通过改写覆盖的语法就认为是 built-in，像 includes 和 Promise 这些都属于 built-in。而 Babel 默认只转译 syntax 类型的，对于 built-in 类型的就需要通过  core-js 来完成转译。
+
+<slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
+### Babel polyfill 实现方式
+- 使用 @babel/preset-env ，useBuiltIns 设置为 'entry'
+- 使用 @babel/preset-env ，useBuiltIns 设置为 'usage'
+- 使用 @babel/plugin-transform-runtime
+
+
+<slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
 # Babel 插件开发
 
+Babel提供了一种![访问者模式（visitor）](https://en.wikipedia.org/wiki/Visitor_pattern)用于 AST 遍历。 简单的说它们就是一个对象，定义了用于在一个树状结构中获取具体节点的方法。
+```
+// 这是一个简单的访问者，把它用于遍历中时，每当在树中遇见一个 Identifier 的时候会调用 Identifier() 方法。
+const MyVisitor = {
+  Identifier() {
+    console.log("Called!");
+  }
+};
+
+// 所以在下面的代码中 Identifier() 方法会被调用四次（包括 square 在内，总共有四个 Identifier）。)
+function square(n) {
+  return n * n;
+}
+```
 
 <slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
 
