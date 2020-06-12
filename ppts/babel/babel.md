@@ -2,10 +2,12 @@ title: Babel介绍
 speaker: 王宇
 plugins:
     - echarts
+css:
+    - /css/index.css
 
 <slide class="bg-black-blue aligncenter" image="/img/babel.png .dark">
 
-# Babel及其插件开发 {.text-landing.text-shadow}
+# Babel介绍 {.text-landing.text-shadow}
 
 By 王宇 {.text-intro}
 
@@ -80,7 +82,11 @@ const presets = [
   [
     '@babel/env',
     {
-      targets: '58',
+      targets: '> 0.25%, not dead',
+      //targets: {
+      //  chrome: "58",
+      //  ie: "11"
+      // },
       debug: true
     }
   ]
